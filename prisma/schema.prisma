@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Quiz {
+  id        String         @id @db.Uuid
+  questions QuizQuestion[]
+  topics    QuizTopic[]
+}
+
+model Question {
+  id            String          @id @db.Uuid
+  type          QuestionType
+  options       String[]
+  correctOption String
+  QuestionTopic QuestionTopic[]
+  QuizQuestion  QuizQuestion[]
+}
+
+model QuizQuestion {
+  quizId     String   @db.Uuid
+  quiz       Quiz     @relation(fields: [quizId], references: [id])
+  questionId String   @db.Uuid
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@id([quizId, questionId])
+}
+
+model QuestionTopic {
+  questionId String   @db.Uuid
+  question   Question @relation(fields: [questionId], references: [id])
+  topicId    String   @db.Uuid
+  topic      Topic    @relation(fields: [topicId], references: [id])
+
+  @@id([questionId, topicId])
+}
+
+model QuizTopic {
+  quizId  String @db.Uuid
+  quiz    Quiz   @relation(fields: [quizId], references: [id])
+  topicId String @db.Uuid
+  topic   Topic  @relation(fields: [topicId], references: [id])
+
+  @@id([quizId, topicId])
+}
+
+model Topic {
+  id            String          @id @db.Uuid
+  name          String
+  QuizTopic     QuizTopic[]
+  QuestionTopic QuestionTopic[]
+}
