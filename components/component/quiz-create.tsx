@@ -1,4 +1,5 @@
-import { useState } from "react";
+"use client"
+import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,24 +12,51 @@ import MultiSelect from "./Multiselect";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faCheck } from '@fortawesome/free-solid-svg-icons'
 import axios, { isCancel } from "axios";
-import { Question , Option } from "@/types";
+import { Question , Option, Topic } from "@/types";
+import { useParams } from "next/navigation";
+
+interface Props {
+  quizId: string;
+}
+
 export const QuizCreate = () => {
+    const params = useParams()
+    const quizId = params.quizId
     const [questions, setQuestions] = useState<Question[]>([])
+    const [loading, setLoading] = useState(true)
     const [currentQuestion, setCurrentQuestion] = useState<Question>({
+      id:"",
       index:0,
       question: "",
-      type: "multiple-choice",
+      type: "MULTIPLE_CHOICE",
       options: [{ index:0 ,text: "", isCorrect: false }],
-      isEditing:false
+      isEditing:false,
+      tags: []
     })
-    const addOption = () => {
+    async function updateTags(questionIndex : number, tags : Topic[]) {
+      
+      if (questionIndex === -1) {
+        setCurrentQuestion((prevQuestion) => ({
+          ...prevQuestion,
+          tags: tags,
+        }));
+      }
+      let tagIds = tags.map((tag) => tag.id)
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((question, index) =>
+          index === questionIndex ? { ...question, tags: tags } : question
+        )
+      );
+    }
+    const [topics, setTopics] = useState<Topic[]>([])
+     const addOption = () => {
         setCurrentQuestion((prevQuestion) => ({
           ...prevQuestion,
           options: [...prevQuestion.options, { text: "", isCorrect: false , index : prevQuestion.options.length}],
         }))
       }
       const updateOption = (index : number, updatedOption : Option) => {
-        if (currentQuestion.type === "true-false" && updatedOption.isCorrect) {
+        if (currentQuestion.type === "TRUE_FALSE" && updatedOption.isCorrect) {
           //set previous correct to wrong
           setCurrentQuestion((prevQuestion) => ({
             ...prevQuestion,
@@ -44,7 +72,7 @@ export const QuizCreate = () => {
         }))
       }
       const saveQuestion = async () => {
-        if (currentQuestion.question === "") {
+      if (currentQuestion.question === "") {
           return alert("Please enter a question")
         
         }
@@ -52,28 +80,78 @@ export const QuizCreate = () => {
           return alert("Question already exists")
         }
 
-        setQuestions((prevQuestions : Question[]) => [...prevQuestions, currentQuestion])
-        setCurrentQuestion({
-          index:questions.length,
-          question: "",
-          type: "multiple-choice",
-          options: [{ index:0,text: "", isCorrect: false }],
-          isEditing:false
-        })  
-        // const res = await axios.post(`/api/question/${quizId}`, currentQuestion)
+        setQuestions((prevQuestions : Question[]) => [...prevQuestions, {...currentQuestion , index:prevQuestions.length + 1}])
+        const optionsSend =currentQuestion.options.filter((option) => option.isCorrect).map((option) => option.text)
+        const postQuestion = {
+          ...currentQuestion,
+          options: currentQuestion.options.map((option) => option.text),
+          tags: currentQuestion.tags.map((tag) => tag.id),
+          correctOption: optionsSend,
+          quizId: quizId
+          }
+          const res = await axios.post(`/api/question`, { question :postQuestion})// change needed
+            setCurrentQuestion({
+              id:"",
+              index:questions.length,
+              question: "",
+              type: "MULTIPLE_CHOICE",
+              options: [{ index:0,text: "", isCorrect: false }],
+              isEditing:false,
+              tags: []
+            })  
     }      
-    const editQuestion = (questionIndex: number, updatedQuestion: Question) => {
+    const editQuestion = async (questionIndex: number, updatedQuestion: Question) => {
     console.log("edit question",questions[questionIndex].options , updatedQuestion.options )
     setQuestions((prevQuestions) =>
         prevQuestions.map((question, index) =>
           index === question.index ? updatedQuestion : question
         )
-      );
+      );    
     };
+
+    const updateQuestion = async (questionIndex: number,updatedQuestion : Question) => {
+    const optionsSend =updatedQuestion.options.filter((option) => option.isCorrect).map((option) => option.text)
+      const postQuestion = {
+        ...updatedQuestion,
+        options: updatedQuestion.options.map((option) => option.text),
+        tags: updatedQuestion.tags.map((tag) => tag.id),
+        correctOption: optionsSend,
+        quizId: quizId
+        }
+
+      const res = await axios.put(`/api/question/${updatedQuestion.id}`, {question:postQuestion})
+      console.log("updated" , res.data)
+      // change needed update question
+      // const res = await axios.put(`/api/question/${quizId}`, questions[questionIndex]) change needed update question
+      // console.log(res.data)
+    }
+
+    useEffect(() => {
+      setLoading(true)
+      async function fetchTopics() {
+        const res = await axios.get(`/api/topics`) // change needed handle case for mulitple topicdomains
+        console.log(res.data)
+        setTopics(res.data)
+
+    }
+
+      async function fetchQuiz() {
+        const res = await axios.get(`/api/quiz/${quizId}`)
+        console.log(res.data)
+        console.log("console ",res.data)
+
+        setQuestions(res.data.quiz.questions)
+        //setTags(res.data.quiz.topics) // need change for quiz tags
+        setLoading(false)
+      }
+      fetchTopics()
+      fetchQuiz()
+    } , [])
   
 
     return(
-        <div>
+      !loading &&  
+       ( <div>
     <div className="p-6 space-y-4">
     <div className="space-y-2">
             <div className="space-y-2">
@@ -88,7 +166,7 @@ export const QuizCreate = () => {
                   //change needed
                   let multipleCorrect = true;
                   let options = currentQuestion.options
-                  if (value === "true-false") {
+                  if (value === "TRUE_FALSE") {
                     options = [{ index:0,text: "True", isCorrect: true }, { index:1,text: "False", isCorrect: false }]
                   }
                   else {
@@ -104,12 +182,12 @@ export const QuizCreate = () => {
                   <SelectValue placeholder="Select question type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="multiple-choice">Multiple Choice</SelectItem>
-                  <SelectItem value="true-false">True/False</SelectItem>
+                  <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
+                  <SelectItem value="TRUE_FALSE">True/False</SelectItem>
                   <SelectItem value="short-answer">Short Answer</SelectItem>
                 </SelectContent>
               </Select>
-              <MultiSelect />
+              <MultiSelect index={-1} updateTags={updateTags}  values={currentQuestion.tags}/>
             </div>
       <Label htmlFor="question">Question</Label>
       <Textarea
@@ -172,19 +250,25 @@ export const QuizCreate = () => {
         <FontAwesomeIcon className={`w-7 h-7 cursor-pointer ${question.isEditing ? "hidden" : ""}`}
          icon={faEdit} onClick={() => editQuestion(question.index, { ...question, isEditing: true })} />
         <FontAwesomeIcon color="green" className={ `w-7 h-7 ml-2 cursor-pointer ${!question.isEditing ? "hidden" : ""}`}
-        icon={faCheck} onClick={() => editQuestion(question.index, { ...question, isEditing: false })} />
+        icon={faCheck} onClick={() => {
+          
+          updateQuestion(question.index ,question)
+          editQuestion(question.index, { ...question, isEditing: false })
+          document.getElementById("display")?.scrollIntoView({ behavior: 'smooth'});
+        }} />
         </div> 
 
             </div>
 
               <CardDescription>
-                {question.type === "multiple-choice"
+                {question.type === "MULTIPLE_CHOICE"
                   ? "Multiple Choice"
-                  : question.type === "true-false"
+                  : question.type === "TRUE_FALSE"
                   ? "True/False"
                   : "Short Answer"}
                   {//change needed add tags
                   }
+              <MultiSelect index={index} updateTags={updateTags} values={question.tags} />
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -195,7 +279,7 @@ export const QuizCreate = () => {
                   disabled={!question.isEditing}
   checked={option.isCorrect}
   onCheckedChange={(checked) => {
-    if (question.type === "true-false" && checked) {
+    if (question.type === "TRUE_FALSE" && checked) {
       // Set all other options to false
       editQuestion(question.index, {
         ...question,
@@ -240,4 +324,8 @@ export const QuizCreate = () => {
     ))}
   </div>
   </div>
-)}
+)
+
+
+    )
+}

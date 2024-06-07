@@ -5,44 +5,68 @@
  */
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Topic } from "@prisma/client"
+import axios from "axios"
 
-export default function MultiSelect() {
-  const [selectedTags, setSelectedTags] = useState([])
+type Props = {
+  values: Topic[]
+  index : number
+  updateTags : (index:number,tags:Topic[]) => void
+
+}
+
+export default function MultiSelect({ values,index,updateTags }: Props) {
+
+  const [selectedTags, setSelectedTags] = useState<Topic[]>(values || [])
   const [searchTerm, setSearchTerm] = useState("")
-  const [filteredTags, setFilteredTags] = useState([])
-  const allTags = [
-    "Marketing",
-    "Design",
-    "Development",
-    "Sales",
-    "Finance",
-    "HR",
-    "Operations",
-    "IT",
-    "Legal",
-    "Customer Service",
-  ]
-  const handleTagSelect = (tag) => {
+  const [filteredTags, setFilteredTags] = useState<Topic[]>([])
+  const [allTags ,setAllTags] = useState<Topic[]>([])
+  const handleTagSelect = (tag : Topic) => {
     if (selectedTags.includes(tag)) {
       setSelectedTags(selectedTags.filter((t) => t !== tag))
+      updateTags(index,selectedTags.filter((t) => t !== tag))
     } else {
       setSelectedTags([...selectedTags, tag])
+      updateTags(index,[...selectedTags, tag])
     }
   }
-  const handleTagRemove = (tag) => {
+  const handleTagRemove = (tag : Topic) => {
     setSelectedTags(selectedTags.filter((t) => t !== tag))
+    updateTags(index,selectedTags.filter((t) => t !== tag))
   }
+  useEffect(()=>{
+    async function fetchTags(){
+try{     
+      const res = await axios.get("/api/topics")
+      const data = res.data
+      setAllTags(data)
+}
+catch(e){
+  console.log(e)
+}    
+
+}
+    fetchTags()
+  }
+  ,[])
+
+  useEffect(() => {
+    setSelectedTags(values || [])
+  }
+  ,[values])
   return (
     <div className="space-y-4">
       <div className="relative">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full justify-between">
-              <span>{selectedTags.length ? selectedTags.join(", ") : "Select tags"}</span>
+                
+              <span>{selectedTags.length ? selectedTags.map((tag) => tag.name).join(", ") : "Select tags"}</span>
+    
               <ChevronDownIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -54,8 +78,9 @@ export default function MultiSelect() {
                   type="text"
                   placeholder="Search tags..."
                   value={searchTerm}
-                  onChange={(e) => {setSearchTerm(e.target.value)
-                    setFilteredTags(allTags.filter((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setFilteredTags(allTags.filter((tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase())))
                   }}
                   onKeyDown={(e) => e.stopPropagation()}
 
@@ -67,11 +92,11 @@ export default function MultiSelect() {
             <DropdownMenuGroup>
               {filteredTags.map((tag) => (
                 <DropdownMenuCheckboxItem
-                  key={tag}
+                  key={tag.id}
                   checked={selectedTags.includes(tag)}
                   onCheckedChange={() => handleTagSelect(tag)}
                 >
-                  {tag}
+                  {tag.name}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuGroup>
@@ -81,16 +106,16 @@ export default function MultiSelect() {
       <div className="flex flex-wrap gap-2">
         {selectedTags.map((tag) => (
           <div
-            key={tag}
+            key={tag.id}
             className="flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-200"
           >
-            {tag}
+            {tag.name}
             <button
               type="button"
               className="ml-2 -mr-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
               onClick={() => handleTagRemove(tag)}
             >
-              <span className="sr-only">Remove {tag}</span>
+              <span className="sr-only">Remove {tag.name}</span>
               <XIcon className="h-3 w-3" />
             </button>
           </div>
