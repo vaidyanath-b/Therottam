@@ -10,12 +10,38 @@ export async function DELETE (req: NextRequest, context: any) {
             console.log("No questionId or quizId provided");
             return NextResponse.json({ message: "no questionId or quizId provided" }, { status: 404 });
         }
+        const question = await prisma.quizQuestion.findUnique({
+            where: {
+                quizId_questionId: {
+                    questionId: questionId,
+                    quizId: quizId
+                }
+            }
+        });
 
-       const res =  await prisma.quizQuestion.deleteMany({
+        if (!question) {
+            return NextResponse.json({ message: "no question exists" }, { status: 404 });
+        }
+        if (question.index)
+{        await prisma.quizQuestion.updateMany({
+            where: {
+                quizId: quizId,
+                index: {
+                    gt: question.index
+                }
+            },
+            data: {
+                index: {
+                    decrement: 1
+                }
+            }
+        });
+}       
+const res =  await prisma.quizQuestion.deleteMany({
             where: {
                 questionId: questionId,
                 quizId: quizId
-            }
+            },
         });
 
         return NextResponse.json({ message: "Question deleted" }, { status: 200 });

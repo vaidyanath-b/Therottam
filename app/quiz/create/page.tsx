@@ -16,5 +16,5 @@ async function getQuizID() {
 
 export default async function QuizCreatePage() {
     const quiz = await getQuizID();
-    redirect(`/quiz/create/${quiz.id}`)
+    redirect(`/quiz/${quiz.id}`)
 }

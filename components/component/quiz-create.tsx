@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import MultiSelect from "./Multiselect";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faCheck , faDeleteLeft } from '@fortawesome/free-solid-svg-icons'
 import axios, { isCancel } from "axios";
 import { Question , Option, Topic } from "@/types";
 import { useParams } from "next/navigation";
@@ -44,7 +44,7 @@ export const QuizCreate = () => {
       let tagIds = tags.map((tag) => tag.id)
       setQuestions((prevQuestions) =>
         prevQuestions.map((question, index) =>
-          index === questionIndex ? { ...question, tags: tags } : question
+          question.index === questionIndex ? { ...question, tags: tags } : question
         )
       );
     }
@@ -80,16 +80,18 @@ export const QuizCreate = () => {
           return alert("Question already exists")
         }
 
-        setQuestions((prevQuestions : Question[]) => [...prevQuestions, {...currentQuestion , index:prevQuestions.length + 1}])
-        const optionsSend =currentQuestion.options.filter((option) => option.isCorrect).map((option) => option.text)
+        const optionsSend = currentQuestion.options.filter((option) => option.isCorrect).map((option) => option.text)
         const postQuestion = {
           ...currentQuestion,
+          index : questions.length,
           options: currentQuestion.options.map((option) => option.text),
           tags: currentQuestion.tags.map((tag) => tag.id),
           correctOption: optionsSend,
           quizId: quizId
           }
           const res = await axios.post(`/api/question`, { question :postQuestion})// change needed
+          setQuestions((prevQuestions : Question[]) => [...prevQuestions, {...currentQuestion , index:prevQuestions.length}])
+
             setCurrentQuestion({
               id:"",
               index:questions.length,
@@ -101,10 +103,9 @@ export const QuizCreate = () => {
             })  
     }      
     const editQuestion = async (questionIndex: number, updatedQuestion: Question) => {
-    console.log("edit question",questions[questionIndex].options , updatedQuestion.options )
     setQuestions((prevQuestions) =>
-        prevQuestions.map((question, index) =>
-          index === question.index ? updatedQuestion : question
+        prevQuestions.map((question) =>
+          questionIndex === question.index ? updatedQuestion : question
         )
       );    
     };
@@ -227,8 +228,8 @@ export const QuizCreate = () => {
     <Button onClick={saveQuestion}>Save Question</Button>
   </div>
   <div id="display" className="p-6 space-y-4 ">
-        {questions.map((question, index) => (
-          <Card key={index}>
+        {questions.map((question) => (
+          <Card key={question.index}>
             <CardHeader>
               <div className="flex justify-between">
             {question.isEditing ? (
@@ -256,6 +257,12 @@ export const QuizCreate = () => {
           editQuestion(question.index, { ...question, isEditing: false })
           document.getElementById("display")?.scrollIntoView({ behavior: 'smooth'});
         }} />
+        <FontAwesomeIcon color="red" className={ `w-7 h-7 ml-2 cursor-pointer ${!question.isEditing ? "hidden" : ""}`}
+        icon={faDeleteLeft} onClick={() => {
+          axios.delete(`/api/quiz/${quizId}/${question.id}`)
+          setQuestions((prevQuestions) => prevQuestions.filter((q) => q.id !== question.id))
+        }
+        } />
         </div> 
 
             </div>
@@ -268,7 +275,7 @@ export const QuizCreate = () => {
                   : "Short Answer"}
                   {//change needed add tags
                   }
-              <MultiSelect index={index} updateTags={updateTags} values={question.tags} />
+              <MultiSelect index={question.index} updateTags={updateTags} values={question.tags} />
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -305,7 +312,7 @@ export const QuizCreate = () => {
                     onChange={(e) =>{
                      
 
-                      editQuestion(index, {
+                      editQuestion(question.index, {
                         ...question,
                         options: question.options.map((option, optionIndex) =>
                           optionIndex === i
