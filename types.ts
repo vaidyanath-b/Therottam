@@ -13,9 +13,20 @@ export interface Question {
     options: Option[];
     tags : Topic[];
   }
+export interface StudyRoomData {
+    name: string;
+    roomCode: string;
+  }
 
 export interface Topic{
     id:string,
     name:string,
 }
   
+
+export interface StudyRoomListData {
+    id: string;
+    name: string;
+    owner: string;
+    code: string;
+  }

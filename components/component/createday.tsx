@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { QuizCreate } from "./quiz-create"
+import Modules from "./createSolvable"
 
 export default function CreateDay() {
   const [activeTab, setActiveTab] = useState("quiz")
@@ -36,7 +37,7 @@ export default function CreateDay() {
         <QuizCreate />
       </TabsContent>
       <TabsContent value="settings">
-        <div className="p-6 space-y-4" />
+        <Modules />
       </TabsContent>
     </Tabs>
   )

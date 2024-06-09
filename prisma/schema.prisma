@@ -5,36 +5,150 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-    previewFeatures = ["postgresqlExtensions"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-    extensions = [pgcrypto]
-
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgsodium(schema: "pgsodium"), supabase_vault, uuid_ossp(map: "uuid-ossp", schema: "extensions"), vector]
 }
+
+enum difficulty_type {
+  EASY
+  MEDIUM
+  HARD
+}
+
 enum QuestionType {
   MULTIPLE_CHOICE
   TRUE_FALSE
   SHORT_ANSWER
 }
 
+model User {
+  username                String             @id
+  email                   String             @unique
+  joinedAt                DateTime           @default(now())
+  studyRooms              StudyRoom[]
+  quizAttempts            QuizAttempt[]
+  questionAttempts        QuestionAttempt[]
+  createdStudyRoomContent StudyRoomContent[]
+  createdStudyRoomQuiz    StudyRoomQuiz[]
+  createdQuizzes          Quiz[]
+  createdQuestions        Question[]
+
+  StudyRoomMember StudyRoomMember[]
+}
+
 model Quiz {
-  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  questions QuizQuestion[]
-  topics    QuizTopic[]
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questions     QuizQuestion[]
+  topics        QuizTopic[]
+  owner_id      String?
+  owner         User?           @relation(fields: [owner_id], references: [username])
+  StudyRoom     StudyRoom?      @relation(fields: [studyRoomId], references: [id])
+  studyRoomId   String?         @db.Uuid
+  StudyRoomQuiz StudyRoomQuiz[]
+  QuizAttempt   QuizAttempt[]
+}
+
+model StudyRoom {
+  id      String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
+  code   String @unique
+  ownerId String
+  owner   User              @relation(fields: [ownerId], references: [username])
+  members StudyRoomMember[]
+  quizzes Quiz[]
+
+  StudyRoomQuiz    StudyRoomQuiz[]
+  StudyRoomContent StudyRoomContent[]
+  QuizAttempt      QuizAttempt[]
+}
+
+model StudyRoomMember {
+  username     String  
+  studyRoom_id String    @db.Uuid
+  user         User      @relation(fields: [username], references: [username])
+  studyRoom    StudyRoom @relation(fields: [studyRoom_id], references: [id])
+
+  @@id([username, studyRoom_id])
+}
+
+model StudyRoomQuiz {
+  day          Int
+  studyRoom_id String    @db.Uuid
+  studyRoom    StudyRoom @relation(fields: [studyRoom_id], references: [id])
+  quizId       String    @db.Uuid
+  quiz         Quiz      @relation(fields: [quizId], references: [id])
+  createdAt    DateTime  @default(now())
+  creator_id   String    
+  creator      User      @relation(fields: [creator_id], references: [username])
+
+  @@id([studyRoom_id, quizId, day])
+}
+
+model StudyRoomContent {
+  id           Int             @default(autoincrement())
+  day          Int
+  studyRoom_id String          @db.Uuid
+  studyRoom    StudyRoom       @relation(fields: [studyRoom_id], references: [id])
+  difficulty   difficulty_type
+  title        String
+  activity     String
+  resource     String
+  creator_id   String
+  creator      User            @relation(fields: [creator_id], references: [username])
+  createdAt    DateTime        @default(now())
+  topic_id     String          @db.Uuid
+  topic        Topic           @relation(fields: [topic_id], references: [id])
+
+  @@id([studyRoom_id, day, id])
+}
+
+model QuizAttempt {
+  studyRoom_id String    @db.Uuid
+  day          Int
+  quizId       String    @db.Uuid
+  quiz         Quiz      @relation(fields: [quizId], references: [id])
+  username     String    
+  user         User      @relation(fields: [username], references: [username])
+  studyRoom    StudyRoom @relation(fields: [studyRoom_id], references: [id])
+  score        Int
+  startedAt    DateTime
+  endedAt      DateTime
+
+  QuestionAttempt QuestionAttempt[]
+
+  @@id([studyRoom_id, quizId, username, day])
+}
+
+model QuestionAttempt {
+  username     String
+  questionId   String      @db.Uuid
+  studyRoom_id String      @db.Uuid
+  quizId       String      @db.Uuid
+  day          Int
+  quizAttempt  QuizAttempt @relation(fields: [studyRoom_id, quizId, username, day], references: [studyRoom_id, quizId, username, day])
+  correct      Boolean
+  answer       String
+  User         User?       @relation(fields: [username], references: [username])
+
+  @@id([studyRoom_id, quizId, username, questionId, day])
 }
 
 model Question {
   id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type          QuestionType
-  question     String
+  question      String
   options       String[]
   correctOption String[]
   QuestionTopic QuestionTopic[]
   QuizQuestion  QuizQuestion[]
+  User          User?           @relation(fields: [username], references: [username])
+  username      String?
 }
 
 model QuizQuestion {
@@ -42,7 +156,8 @@ model QuizQuestion {
   quiz       Quiz     @relation(fields: [quizId], references: [id])
   questionId String   @db.Uuid
   question   Question @relation(fields: [questionId], references: [id])
-  index Int?
+  index      Int?
+
   @@id([quizId, questionId])
 }
 
@@ -65,8 +180,9 @@ model QuizTopic {
 }
 
 model Topic {
-  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String
-  QuizTopic     QuizTopic[]
-  QuestionTopic QuestionTopic[]
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String
+  QuizTopic        QuizTopic[]
+  QuestionTopic    QuestionTopic[]
+  StudyRoomContent StudyRoomContent[]
 }
