@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { difficulty_type } from "@prisma/client";
 
 interface CreateDayParams {
     roomId : string;
@@ -24,111 +25,146 @@ export async function createDay(params:CreateDayParams){
     if (day > 0){
       last3days = [day - 1 || 0, day - 2 || 0, day - 3 ||0]
     }
-    const latestQuizCreators = await prisma.studyRoomQuiz.findMany({
-        select:{
-            creator_id:true,
-            studyRoom:true
-        },
-        where:{
-            studyRoom_id: roomId,
-            day : {
-                in : last3days
-            }
+    // const latestQuizCreators = await prisma.studyRoomQuiz.findMany({
+    //     select:{
+    //         creator_id:true,
+    //         studyRoom:true
+    //     },
+    //     where:{
+    //         studyRoom_id: roomId,
+    //         day : {
+    //             in : last3days
+    //         }
         
 
-        },
+    //     },
         
-    });
-    const latestContentCreators = await prisma.studyRoomContent.findMany({
-        select:{
-            creator_id:true
+    // });
+    // const latestContentCreators = await prisma.studyRoomContent.findMany({
+    //     select:{
+    //         creator_id:true
+    //     },
+    //     where:{
+    //         studyRoom_id: roomId,
+    //         day : {
+    //             in : last3days
+    //         }
+
+    //     }
+    // });
+    // const latestCreators = [...latestQuizCreators, ...latestContentCreators];
+
+    // const uniqueCreators:string[] = Array.from(new Set(latestCreators.map(item => item?.creator_id || '')));
+    const  optimalQuizCreatorIds = await prisma.studyRoomQuiz.findMany({
+        distinct: ['creator_id'],
+        orderBy: {
+          day: 'desc',
         },
-        where:{
-            studyRoom_id: roomId,
-            day : {
-                in : last3days
-            }
+        select: {
+          creator_id: true,
+        },
+      });
+    const optimalContentCreatorIds = await prisma.studyRoomContent.findMany({
+        distinct: ['creator_id'],
+        orderBy: {
+          day: 'desc',
+        },
+        select: {
+          creator_id: true,
+        },
+      });
+    // let newQuizCreator = await prisma.studyRoomMember.findFirst({
 
-        }
-    });
-    const latestCreators = [...latestQuizCreators, ...latestContentCreators];
-
-    const uniqueCreators:string[] = Array.from(new Set(latestCreators.map(item => item?.creator_id || '')));
-
-    let newQuizCreator = await prisma.studyRoomMember.findFirst({
-
-        where :{
-            studyRoom_id : roomId,
-            username : {
-                notIn : uniqueCreators
-            }
+    //     where :{
+    //         studyRoom_id : roomId,
+    //         username : {
+    //             notIn : uniqueCreators
+    //         }
         
-        },
-        orderBy : {
-            quizesCreated : 'asc'
-        }
-    })
-        if (!newQuizCreator){
-            newQuizCreator = await prisma.studyRoomMember.findFirst({
-                where :{
-                    studyRoom_id : roomId,
-                    username : {
-                        not : uniqueCreators[-1]
-                    }
-                },
-                orderBy : {
-                    quizesCreated : 'asc'
-                }
-            })
-        }
-    uniqueCreators.push(newQuizCreator?.username || '');
-    let newContentCreator = await prisma.studyRoomMember.findFirst({
-        where :{
-            studyRoom_id : roomId,
-            username : {
-                notIn : uniqueCreators
-            }
+    //     },
+    //     orderBy : {
+    //         quizesCreated : 'asc'
+    //     }
+    // })
+    //     if (!newQuizCreator){
+    //         newQuizCreator = await prisma.studyRoomMember.findFirst({
+    //             where :{
+    //                 studyRoom_id : roomId,
+    //                 username : {
+    //                     not : uniqueCreators[-1]
+    //                 }
+    //             },
+    //             orderBy : {
+    //                 quizesCreated : 'asc'
+    //             }
+    //         })
+    //     }
+    // uniqueCreators.push(newQuizCreator?.username || '');
+    // let newContentCreator = await prisma.studyRoomMember.findMany({
+    //     where :{
+    //         studyRoom_id : roomId,
+    //         username : {
+    //             notIn : uniqueCreators
+    //         }
         
-        },
-        orderBy : {
-            contentCreated : 'asc'
-        }
-    })
-    if (!newContentCreator){
-        newContentCreator = await prisma.studyRoomMember.findFirst({
-            where :{
-                studyRoom_id : roomId,
-                username : {
-                    not : uniqueCreators[-1]
-                }
-            },
-            orderBy : {
-                contentCreated : 'asc'
-            }
-        })
-    }
+    //     },
+    //     orderBy : {
+    //         contentCreated : 'asc'
+    //     },
+    //     take: 3
+        
+    // })
+    // if (!newContentCreator){
+    //     newContentCreator = await prisma.studyRoomMember.findFirst({
+    //         where :{
+    //             studyRoom_id : roomId,
+    //             username : {
+    //                 not : uniqueCreators[-1]
+    //             }
+    //         },
+    //         orderBy : {
+    //             contentCreated : 'asc'
+    //         }
+    //     })
+    // }
+    const studyRoomContentData = 
+[{        studyRoom_id: roomId,
+        creator_id: optimalContentCreatorIds[-1]?.creator_id || newDay.studyRoom.ownerId,
+        day: day,
+        difficulty_type: difficulty_type.HARD,},
+{        studyRoom_id: roomId,
+    creator_id: optimalContentCreatorIds[-2]?.creator_id || newDay.studyRoom.ownerId,
+    day: day,
+    difficulty_type: difficulty_type.MEDIUM,},
+{
+    studyRoom_id: roomId,
+    creator_id: optimalContentCreatorIds[-3]?.creator_id || optimalContentCreatorIds[-2]?.creator_id || newDay.studyRoom.ownerId,
+    day: day,
+    difficulty_type: difficulty_type.EASY,
+}
+]        
+    
 
-    await prisma.studyRoomContent.create({
+    await prisma.studyRoomContent.createMany({
+        data:studyRoomContentData
+    },
+    
+
+);
+    const {id : quiz_id , owner_id} = await prisma.quiz.create({
         data:{
-            studyRoom_id: roomId,
-            creator_id: newContentCreator?.username || newDay.studyRoom.ownerId,
-            day: day
-        }
-    });
-    const {id} = await prisma.quiz.create({
-        data:{
-            owner_id : newQuizCreator?.username 
+            owner_id : optimalQuizCreatorIds[-1]?.creator_id || newDay.studyRoom.ownerId, 
         }
     })
     await prisma.studyRoomQuiz.create({
         data:{
             studyRoom_id: roomId,
-            creator_id: newQuizCreator?.username  || newDay.studyRoom.ownerId, 
+            creator_id: owner_id, 
             day: day,
-            quizId : "sadad"
+            quizId : quiz_id
         },
         
     });
-    console.log("creators,, ",newQuizCreator?.username, newContentCreator?.username)
+    console.log("creators,, ",optimalQuizCreatorIds[-1]?.creator_id, optimalContentCreatorIds.slice(-3)?.map(item => item.creator_id));
     return newDay;
 }
