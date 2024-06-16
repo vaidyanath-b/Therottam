@@ -48,8 +48,6 @@ model Quiz {
   topics        QuizTopic[]
   owner_id      String?
   owner         User?           @relation(fields: [owner_id], references: [username])
-  StudyRoom     StudyRoom?      @relation(fields: [studyRoomId], references: [id])
-  studyRoomId   String?         @db.Uuid
   StudyRoomQuiz StudyRoomQuiz[]
   QuizAttempt   QuizAttempt[]
 }
@@ -57,53 +55,75 @@ model Quiz {
 model StudyRoom {
   id      String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name    String
-  code   String @unique
+  code    String            @unique
   ownerId String
   owner   User              @relation(fields: [ownerId], references: [username])
   members StudyRoomMember[]
-  quizzes Quiz[]
 
   StudyRoomQuiz    StudyRoomQuiz[]
   StudyRoomContent StudyRoomContent[]
   QuizAttempt      QuizAttempt[]
+  StudyRoomDay     StudyRoomDay[]
 }
 
 model StudyRoomMember {
-  username     String  
-  studyRoom_id String    @db.Uuid
-  user         User      @relation(fields: [username], references: [username])
-  studyRoom    StudyRoom @relation(fields: [studyRoom_id], references: [id])
+  username              String
+  studyRoom_id          String    @db.Uuid
+  user                  User      @relation(fields: [username], references: [username])
+  studyRoom             StudyRoom @relation(fields: [studyRoom_id], references: [id])
+  lastCreatedQuizDay    Int       @default(-1)
+  lastCreatedContentDay Int       @default(-1)
+  quizesCreated         Int       @default(0)
+  contentCreated        Int       @default(0)
+  quizes_won            Int       @default(0)
+  contents_completed    Int       @default(0)
 
   @@id([username, studyRoom_id])
 }
 
+model StudyRoomDay {
+  room_id          String
+  studyRoom        StudyRoom          @relation(fields: [room_id], references: [id])
+  day              Int
+  scheduled_date   DateTime
+  StudyRoomQuiz    StudyRoomQuiz[]
+  StudyRoomContent StudyRoomContent[]
+
+  @@id([room_id, day])
+}
+
 model StudyRoomQuiz {
   day          Int
-  studyRoom_id String    @db.Uuid
-  studyRoom    StudyRoom @relation(fields: [studyRoom_id], references: [id])
-  quizId       String    @db.Uuid
-  quiz         Quiz      @relation(fields: [quizId], references: [id])
-  createdAt    DateTime  @default(now())
-  creator_id   String    
-  creator      User      @relation(fields: [creator_id], references: [username])
+  studyRoom_id String       @db.Uuid
+  studyRoom    StudyRoom    @relation(fields: [studyRoom_id], references: [id])
+  quizId       String       @db.Uuid
+  quiz         Quiz         @relation(fields: [quizId], references: [id])
+  createdAt    DateTime     @default(now())
+  creator_id   String?
+  creator      User?        @relation(fields: [creator_id], references: [username])
+  studyRoomday StudyRoomDay @relation(fields: [studyRoom_id, day], references: [room_id, day])
 
   @@id([studyRoom_id, quizId, day])
 }
 
 model StudyRoomContent {
-  id           Int             @default(autoincrement())
-  day          Int
-  studyRoom_id String          @db.Uuid
-  studyRoom    StudyRoom       @relation(fields: [studyRoom_id], references: [id])
-  difficulty   difficulty_type
-  title        String
-  activity     String
-  resource     String
-  creator_id   String
-  creator      User            @relation(fields: [creator_id], references: [username])
-  createdAt    DateTime        @default(now())
-  topic_id     String          @db.Uuid
-  topic        Topic           @relation(fields: [topic_id], references: [id])
+  id             Int              @default(autoincrement())
+  day            Int
+  studyRoom_id   String           @db.Uuid
+  studyRoom      StudyRoom        @relation(fields: [studyRoom_id], references: [id])
+  difficulty     difficulty_type?
+  title          String?
+  activity       String?
+  resource       String?
+  creator_id     String?
+  creator        User?            @relation(fields: [creator_id], references: [username])
+  createdAt      DateTime         @default(now())
+  topic_id       String?          @db.Uuid
+  topic          Topic?           @relation(fields: [topic_id], references: [id])
+  date           DateTime?
+  isLive         Boolean          @default(false)
+  studyRoomday   StudyRoomDay     @relation(fields: [studyRoom_id, day], references: [room_id, day])
+  scheduled_date DateTime?
 
   @@id([studyRoom_id, day, id])
 }
@@ -113,7 +133,7 @@ model QuizAttempt {
   day          Int
   quizId       String    @db.Uuid
   quiz         Quiz      @relation(fields: [quizId], references: [id])
-  username     String    
+  username     String
   user         User      @relation(fields: [username], references: [username])
   studyRoom    StudyRoom @relation(fields: [studyRoom_id], references: [id])
   score        Int
