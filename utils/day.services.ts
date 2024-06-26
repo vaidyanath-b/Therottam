@@ -4,11 +4,16 @@ import { difficulty_type } from "@prisma/client";
 interface CreateDayParams {
     roomId : string;
     day : number;
+    today?:boolean | undefined;
 }
 export async function createDay(params:CreateDayParams){
+
     const time = new Date()
     time.setHours(0,0,0,0);
+    if(params.today === false)
+{    
     time.setDate(time.getDate() + 1);
+}    
     const scheduled_date = time.toISOString();
     const {roomId , day} = params;
     const newDay = await prisma.studyRoomDay.create({
@@ -131,16 +136,16 @@ export async function createDay(params:CreateDayParams){
 [{        studyRoom_id: roomId,
         creator_id: optimalContentCreatorIds[-1]?.creator_id || newDay.studyRoom.ownerId,
         day: day,
-        difficulty_type: difficulty_type.HARD,},
+        difficulty: difficulty_type.HARD,},
 {        studyRoom_id: roomId,
     creator_id: optimalContentCreatorIds[-2]?.creator_id || newDay.studyRoom.ownerId,
     day: day,
-    difficulty_type: difficulty_type.MEDIUM,},
+    difficulty: difficulty_type.MEDIUM,},
 {
     studyRoom_id: roomId,
     creator_id: optimalContentCreatorIds[-3]?.creator_id || optimalContentCreatorIds[-2]?.creator_id || newDay.studyRoom.ownerId,
     day: day,
-    difficulty_type: difficulty_type.EASY,
+    difficulty: difficulty_type.EASY,
 }
 ]        
     
@@ -165,6 +170,6 @@ export async function createDay(params:CreateDayParams){
         },
         
     });
-    console.log("creators,, ",optimalQuizCreatorIds[-1]?.creator_id, optimalContentCreatorIds.slice(-3)?.map(item => item.creator_id));
+    console.log("creators ",optimalQuizCreatorIds[-1]?.creator_id, optimalContentCreatorIds.slice(-3)?.map(item => item.creator_id));
     return newDay;
 }

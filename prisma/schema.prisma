@@ -82,7 +82,7 @@ model StudyRoomMember {
 }
 
 model StudyRoomDay {
-  room_id          String
+  room_id          String @db.Uuid
   studyRoom        StudyRoom          @relation(fields: [room_id], references: [id])
   day              Int
   scheduled_date   DateTime

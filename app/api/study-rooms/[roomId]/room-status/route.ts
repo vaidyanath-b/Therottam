@@ -48,7 +48,8 @@ export  async function GET (req: NextApiRequest , context :any) {
     if (_max.day === null){
         // await createDay(roomId , 1);
         // await createDay(roomId,2)
-        return NextResponse.json({day:1 } ,{status:400 , statusText:"No days created"})
+        await createDay({roomId :roomId ,day: 1,today:true});
+        return NextResponse.json({day:1 } ,{status:200 , statusText:"Day 1 created"})
     }
     else{
       await createDay({roomId :roomId ,day: _max.day+1});

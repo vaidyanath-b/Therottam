@@ -7,8 +7,11 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useParams } from "next/navigation"
+import Timer from "./timer"
+export default function AttemptQuiz() {
 
-export default function Component() {
+  const {studyRoomId , quizId} = useParams()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswers, setSelectedAnswers] = useState({})
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -64,6 +67,7 @@ export default function Component() {
   }
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-8 px-4 md:px-6 lg:px-8">
+      <Timer />
       <div className="w-full max-w-3xl">
         <h1 className="mb-2 text-3xl font-bold">Quiz</h1>
         <p className="mb-8 text-gray-500 dark:text-gray-400">Answer the following questions to test your knowledge.</p>

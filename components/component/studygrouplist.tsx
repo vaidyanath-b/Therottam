@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { StudyRoomData , StudyRoomListData } from "@/types"
+import { getUserData } from "@/app/actions"
 import axios from "axios"
 
 export default function StudyRoomList() {
@@ -39,12 +40,11 @@ try{
         roomCode : roomCode || Math.random().toString(36).substring(2,8).toUpperCase()
         })
     
-    const newGroup = {
+    const newGroup : StudyRoomListData= {
       id: createdRoom.data.id,
-      roomCode: createdRoom.data.code,
-      joined: true,
-      ownerName: "You",
-      groupName,
+      code: createdRoom.data.code,
+      owner: "You",
+      name: createdRoom.data.name
     }
 
     setGroups([...groups, newGroup])
@@ -57,7 +57,12 @@ try{
   }
   useEffect(() => {
     async function fetchGroups() {
-try{      const response = await axios.get('/api/study-rooms')
+try{      
+    const {user} = await getUserData()
+    if (!user) {
+      return window.location.href = "/login"
+    }
+      const response = await axios.get('/api/study-rooms')
       const data = response.data as StudyRoomListData[]
       console
       setGroups(data) 
@@ -75,15 +80,14 @@ catch(error){
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {groups
           .map((group:StudyRoomListData) => (
-            <div key={group.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-500 dark:text-gray-400 font-medium">Room Code: {group.code}</span>
-                <span className="text-green-500 dark:text-green-400 font-medium">Joined</span>
-              </div>
-              <h3 className="text-lg font-bold mb-2">{group.name}</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">Hosted by {group.owner}</p>
-            </div>
-          ))}
+<div key={group.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 cursor-pointer" onClick={() => window.location.href = "/study-room/" + group.id}>
+  <div className="flex justify-between items-center mb-4">
+    <span className="text-gray-500 dark:text-gray-400 font-medium">Room Code: {group.code}</span>
+    <span className="text-green-500 dark:text-green-400 font-medium">Joined</span>
+  </div>
+  <h3 className="text-lg font-bold mb-2">{group.name}</h3>
+  <p className="text-gray-500 dark:text-gray-400 mb-4">Hosted by {group.owner}</p>
+</div>          ))}
       </div>
       <div className="flex justify-between items-center mt-8">
         <Button variant="outline" size="lg" onClick={() => setShowModal(true)}>

@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 export async function GET(req:NextApiRequest,context:any){
-    const {roomId,day} = context.params
+    const {roomId,day} = context.params;
 
     //enable authotrization\
     const time = new Date()
@@ -11,25 +11,22 @@ export async function GET(req:NextApiRequest,context:any){
     tomorrow.setHours(0,0,0,0)
     tomorrow.setDate(time.getDate() + 1)
 
-    const roomDay = await prisma.studyRoomDay.findUnique({
+    const tasks = await prisma.studyRoomDay.findUnique({
         where:{
             room_id_day:{
                 room_id:roomId,
                 day:parseInt(day)
             }
-            
         },
         include:{
-            studyRoom:true,
-            StudyRoomQuiz:true,
+            StudyRoomContent:true,
         }
     });
-    if (!roomDay)
-        {return NextResponse.json({},{status:400 , statusText:"no room day got"})}
-    const scheduled_date = new Date(roomDay.scheduled_date)
-    
-
-    return NextResponse.json({...roomDay, isLive: scheduled_date >= time && scheduled_date < tomorrow , isDead: scheduled_date > tomorrow},{status : 200});
-
-    
+    let isLive = false , isDead = false;
+    if (tasks?.scheduled_date)
+{     isLive = tasks?.scheduled_date >= time && tasks?.scheduled_date < tomorrow;
+     isDead = tasks?.scheduled_date > tomorrow;
+}    return NextResponse.json({tasks : tasks?.StudyRoomContent || [] , dayInfo:{isLive,isDead}}  ,{status:200});
 }
+
+
