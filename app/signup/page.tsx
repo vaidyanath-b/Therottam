@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
-import { login } from "@/app/actions/actions"
+import { signup } from "@/app/actions/actions"
 
 export default function Component() {
   const [email, setEmail] = useState('')
@@ -13,15 +13,15 @@ export default function Component() {
   const [username, setUsername] = useState('')
   const handleSubmit = async (event:any) => {
     event.preventDefault()
-    await login( email, password )
+    await signup( email, password,username )
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-950">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email and password to access your account.</CardDescription>
+          <CardTitle className="text-2xl">Sign Up</CardTitle>
+          <CardDescription>Enter your email ,username and password to create your account.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -30,13 +30,19 @@ export default function Component() {
               <Input id="email" type="email" placeholder="m@example.com" required onChange={e => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required onChange={e => setPassword(e.target.value)} />
+              <Label htmlFor="username">Username</Label>
+              <Input id="username" type="text" placeholder="bobby" required onChange={e => setUsername(e.target.value)} />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required placeholder='pass' onChange={e => setPassword(e.target.value)} />
+            </div>
+
           </CardContent>
           <CardFooter className='flex flex-col items-start'> 
-  <a href="/signup" className=" text-sm text-left text-blue-500 hover:underline pb-4">Create an account</a>
-  <Button type="submit" className="w-full">Sign in</Button>
+  <a href="/login" className=" text-sm text-left text-blue-500 hover:underline pb-4 pl-1">Login</a>
+  <Button type="submit" className="w-full">Sign up</Button>
 </CardFooter>
         </form>
       </Card>

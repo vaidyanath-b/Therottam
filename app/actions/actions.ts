@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {prisma} from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { SignInWithPasswordCredentials } from '@supabase/supabase-js'
+import { SignInWithPasswordCredentials , SignUpWithPasswordCredentials } from '@supabase/supabase-js'
 import axios from 'axios'
 
 export async function login(email:string,password:string) {
@@ -46,23 +46,25 @@ export async function login(email:string,password:string) {
   redirect('/')
 }
 
-export async function signup(formData: FormData) {
+export async function signup(email:string,password:string,username:string) {
   const supabase = await createClient()
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+  const signUpData : SignUpWithPasswordCredentials = {
+    email: email,
+    password: password
   }
-
-  const { error } = await supabase.auth.signUp(data)
-
-  
+  const { error } = await supabase.auth.signUp(signUpData)
   if (error) {
-    redirect('/error')
+    throw error
   }
-
+  const {data} = await supabase.auth.getUser()
+  if(data.user?.email){
+    await prisma.user.create({
+      data: {
+        email: data.user?.email,
+        username: username
+      }
+    })
+  }
   revalidatePath('/', 'layout')
   redirect('/')
 }

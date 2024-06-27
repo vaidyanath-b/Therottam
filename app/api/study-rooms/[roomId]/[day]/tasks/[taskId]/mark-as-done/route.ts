@@ -30,6 +30,19 @@ export async function POST(req:NextRequest,context:any){
                     username:String(username)
                 }
             });
+            await prisma.studyRoomMember.update({
+                where:{
+                    username_studyRoom_id:{
+                        username:String(username),
+                        studyRoom_id:roomId
+                    }
+                },
+                data:{
+                    contents_completed:{
+                        increment:1
+                    }
+                }
+            });
 
             return NextResponse.json("Task marked as done" , {status:200 , statusText:"Task marked as done"});
    }    

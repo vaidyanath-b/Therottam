@@ -21,13 +21,16 @@ export default function StudyRoomList() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [roomCode, setRoomCode] = useState("")
   const [groupName, setGroupName] = useState("")
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async () => {
+    const joinedRoom = await axios.post('/api/study-rooms/join', {
+      code: roomCode
+    })
     const newGroup = {
       id: groups.length + 1,
       roomCode,
       joined: true,
       ownerName: "New Owner",
-      groupName: "New Study Group",
+      name: "New Study Group",
     }
     setGroups([...groups, newGroup])
     setShowModal(false)

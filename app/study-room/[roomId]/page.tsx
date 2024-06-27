@@ -9,6 +9,7 @@ import {
   Package,
   Package2,
   Search,
+  ShieldHalf,
   ShoppingCart,
   Users,
 } from "lucide-react"
@@ -42,6 +43,8 @@ import { getUserData } from "@/app/actions"
 import Modules from "@/components/component/createSolvable"
 import SolvePage from "@/components/component/SolveTasks"
 import Components from "@/components/component/Contents"
+import Popup from "@/components/component/Popup"
+import Leaderboard from "@/components/component/LeaderBoard"
 
 export default function StudyRoom() {
   const [studyRoomName , setStudyRoomName] = React.useState("DSA")
@@ -53,6 +56,7 @@ export default function StudyRoom() {
   const [contents , setContents] = React.useState([])
   const [userName , setUserName] = React.useState<String>("")
   const [dayInfo , setDayInfo] = React.useState<any>()
+  const [leaderboardOpen, setLeaderboardOpen] = React.useState(false)
   useEffect(() => {
     async function getRoomDay(){fetch(`/api/study-rooms/${roomId}/room-status`)
 
@@ -88,6 +92,10 @@ export default function StudyRoom() {
   console.log("roomId is " ,roomId)
   return (
     dayInfo && selectedDay!=-1 && <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+
+    
+
+
     <div className="hidden border-r bg-muted/40 md:block">
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
@@ -109,16 +117,19 @@ export default function StudyRoom() {
               <Home className="h-4 w-4" />
               Dashboard
             </Link>
-            <Link
-              href="#"
+            <Popup isOpen={leaderboardOpen} setIsOpen={setLeaderboardOpen}  >
+              <Leaderboard username={userName} roomId={String(roomId)}/>
+            </Popup>
+            <Button onClick={()=>setLeaderboardOpen(true)}
+
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
-              <ShoppingCart className="h-4 w-4" />
-              Orders
+            <ShieldHalf className="h-4 w-4"/>
+              Leaderboard
               <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                6
+                6  {/* change needed replace with dynamic value */}
               </Badge>
-            </Link>
+            </Button>
             <Link
               href="#"
               className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
@@ -171,32 +182,44 @@ export default function StudyRoom() {
       <TabsList className="grid w-full grid-cols-2 md:grid-cols-3">
         <TabsTrigger value="quiz">Quiz</TabsTrigger>
         <TabsTrigger value="contents">Tasks</TabsTrigger>
-        <TabsTrigger value="settings">Settings</TabsTrigger>
       </TabsList>
       <TabsContent value="quiz" className="flex flex-col pl-30 p-10 gap-y-7">
           {quizes && quizes.map((quiz:any,index) => (
-            <div className="flex flex-row gap-x-2  items-baseline">
-              <Label className="font-bold font">Quiz {index +1}</Label>
-{            
-(!dayInfo.isLive && !dayInfo.isDead && quiz.creator_id == userName)? <Button className="h-7" onClick={()=>window.location.href=`/study-room/${roomId}/${quiz.quizId}`}> Edit Quiz 
-              </Button>
-              :
-              dayInfo.isLive ? quiz.creator_id == userName ?
-                           <Button className="h-7" onClick={()=>window.location.href=`/study-room/${roomId}/${quiz.quizId}`}>Edit Quiz</Button> :  //change needed cannot edit while ongoing except for day1 or do something for day1
-                                                      <Button className="h-7">Attempt Quiz</Button> :
-                           <Button className="h-7">View Quiz</Button>
-}           
-<Label className="font-bold font">Creator {quiz.creator_id}</Label>
-
-
+                 <div className="container mx-auto py-12 px-4 md:px-6 lg:px-8">
+                <h1 className="text-3xl font-bold mb-8">Day {selectedDay} Quizes</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div className="p-6">
+                        <div className="block mb-1 text-2xl font-bold hover:text-primary" >{quiz.title || `Quiz ${index+1} `}</div>
+                       <div className="flex flex-col"> <span className="text-xs font">{quiz.questionCount} Questions</span>
+                          <span className="text-xs font">Creator {quiz.creator_id}</span>
+                          </div>
+                        <div className="flex items-center mb-4">
+{                          quiz.topics?.map((topic:any) => (
+                            <span className="text-muted-foreground text-sm">Topics: {topic.topic}</span>
+                          )) || <span className="text-muted-foreground text-sm">General Quiz</span>
+                          
+}                       
+ </div>
+                        <div className="flex justify-between items-center">
+                        {quiz.creator_id === userName ? (
+              <Button className="h-7" onClick={() => (window.location.href = `/quiz/${quiz.quizId}`)}>Edit Quiz</Button>
+) : ( quiz.questionCount === 0) ? null : (
+  <Button className="h-7" onClick={() => (window.location.href = `/study-room/${roomId}/${quiz.quizId}/${selectedDay}`)}>Attempt Quiz</Button>
+)}
+                        </div>
+                    </div>
+                </div>
             </div>
-          ))}
+            </div>
+
+            ))
+
+        }
                 </TabsContent>
 
       <TabsContent value="contents">
 <Components roomId={String(roomId)} selectedDay={selectedDay} isDead={dayInfo.isDead} isLive={dayInfo.isLive} />
-      </TabsContent>
-      <TabsContent value="settings">
       </TabsContent>
     </Tabs>
 

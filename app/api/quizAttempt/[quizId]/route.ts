@@ -155,8 +155,49 @@ try{
 
     }
     )}
+// Existing code to calculate score...
+
+// Fetch the maximum score for this user for this quiz
+    const maxScoreRecord = await prisma.quizAttempt.aggregate({
+    where: {
+        quizId: quizId,
+        username: String(username),
+    },
+    _max: {
+        score: true,
+    },
+});
+    let increment = 0;
+    let newAttempt = false;
+
+    if(maxScoreRecord._max.score==null ){
+        increment = score; 
+        newAttempt = true;
+    }else if (maxScoreRecord._max.score<score) increment = score - maxScoreRecord._max.score;
+    
+    
+    if (increment != 0) {
+        await prisma.studyRoomMember.update({
+            where:{
+                username_studyRoom_id:{
+                    username: String(username),
+                    studyRoom_id: roomId
+                }
+            },
+            data:{
+                quizScore:{
+                    increment: increment
+                },
+                quizes_won:{
+                    increment: newAttempt ? 1 : 0
+                }
+            }
+        })
+    }
+
     return NextResponse.json(result,{status:200});
-}
+}       
+
     catch (error) {
         console.error("Error submitting quiz:", error);
         return NextResponse.json({message:"error submitting quiz" },{ status:404})

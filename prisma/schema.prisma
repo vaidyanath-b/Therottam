@@ -76,6 +76,8 @@ model StudyRoomMember {
   lastCreatedContentDay Int       @default(-1)
   quizesCreated         Int       @default(0)
   contentCreated        Int       @default(0)
+  quizCompleted         Int       @default(0)
+  quizScore             Int       @default(0)
   quizes_won            Int       @default(0)
   contents_completed    Int       @default(0)
 
@@ -196,6 +198,7 @@ model QuizQuestion {
   questionId String   @db.Uuid
   question   Question @relation(fields: [questionId], references: [id])
   index      Int?
+
 
   @@id([quizId, questionId])
 }
