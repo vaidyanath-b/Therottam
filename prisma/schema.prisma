@@ -146,7 +146,7 @@ model ContentMark {
 }
 
 model QuizAttempt {
-  attemptId     Int           @default(autoincrement()) @id
+  attemptId     Int           @id @default(autoincrement())
   studyRoom_id  String        @db.Uuid
   day           Int
   quizId        String        @db.Uuid
@@ -172,7 +172,8 @@ model QuestionAttempt {
   quizAttempt  QuizAttempt @relation(fields: [attemptId], references: [attemptId])
   correct      Boolean
   answer       String[]
-  User         User?       @relation(fields: [username], references: [username])
+  User         User?       @relation(fields: [userUsername], references: [username])
+  userUsername String?
 
   @@id([attemptId, questionId])
 }
