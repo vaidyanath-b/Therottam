@@ -1,17 +1,12 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/LjcoRrrlR0v
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-"use client"
-
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 export default function Timer() {
-  const [isRunning, setIsRunning] = useState(false)
-  const [elapsedTime, setElapsedTime] = useState(0)
-  const [intervalId, setIntervalId] = useState(null)
+  const [isRunning, setIsRunning] = useState<boolean>(false)
+  const [elapsedTime, setElapsedTime] = useState<number>(0)
+  // Updated to use `number | null` to correctly type the interval ID
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null)
+  
   const handleStart = () => {
     setIsRunning(true)
     const id = setInterval(() => {
@@ -19,26 +14,40 @@ export default function Timer() {
     }, 1000)
     setIntervalId(id)
   }
+  
   const handleStop = () => {
     setIsRunning(false)
-    clearInterval(intervalId)
+    if (intervalId) clearInterval(intervalId)
   }
+  
   const handleReset = () => {
     setIsRunning(false)
-    clearInterval(intervalId)
+    if (intervalId) clearInterval(intervalId)
     setElapsedTime(0)
   }
+  
   useEffect(() => {
     handleStart()
+    // Cleanup function to clear the interval when the component unmounts
+    return () => {
+      if (intervalId) clearInterval(intervalId)
+    }
   },[])
+  
   const minutes = Math.floor(elapsedTime / 60000)
   const seconds = Math.floor((elapsedTime % 60000) / 1000)
+  
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-4">
       <div className="text-6xl font-bold">
         {minutes.toString().padStart(2, "0")}:{seconds.toString().padStart(2, "0")}
       </div>
-      
+      {/* Buttons for controlling the timer */}
+      <div>
+        <Button onClick={handleStart} disabled={isRunning}>Start</Button>
+        <Button onClick={handleStop} disabled={!isRunning}>Stop</Button>
+        <Button onClick={handleReset}>Reset</Button>
+      </div>
     </div>
   )
 }

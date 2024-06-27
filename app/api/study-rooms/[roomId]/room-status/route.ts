@@ -1,9 +1,8 @@
-import { NextApiRequest , NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createDay } from "@/utils/day.services";
 
-export  async function GET (req: NextApiRequest , context :any) {
+export  async function GET (req: NextRequest , context :any) {
     const {roomId} = context.params;
     const time = new Date()
     time.setHours(0,0,0,0);

@@ -125,7 +125,7 @@ catch(e){
   )
 }
 
-function ChevronDownIcon(props) {
+function ChevronDownIcon(props:any) {
   return (
     <svg
       {...props}
@@ -145,7 +145,7 @@ function ChevronDownIcon(props) {
 }
 
 
-function SearchIcon(props) {
+function SearchIcon(props:any) {
   return (
     <svg
       {...props}
@@ -166,7 +166,7 @@ function SearchIcon(props) {
 }
 
 
-function XIcon(props) {
+function XIcon(props:any) {
   return (
     <svg
       {...props}
