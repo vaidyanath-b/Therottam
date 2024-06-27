@@ -51,7 +51,7 @@ export  async function GET (req: NextRequest , context :any) {
         return NextResponse.json({day:1 } ,{status:200 , statusText:"Day 1 created"})
     }
     else{
-      await createDay({roomId :roomId ,day: _max.day+1});
+      await createDay({roomId :roomId ,day: _max.day+1,today:true});
         return NextResponse.json({day:_max.day})
     }
     }

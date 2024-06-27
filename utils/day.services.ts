@@ -10,7 +10,7 @@ export async function createDay(params:CreateDayParams){
 
     const time = new Date()
     time.setHours(0,0,0,0);
-    if(params.today === false)
+    if(params.today !== true)   
 {    
     time.setDate(time.getDate() + 1);
 }    
