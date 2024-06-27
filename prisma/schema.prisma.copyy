@@ -146,7 +146,7 @@ model ContentMark {
 }
 
 model QuizAttempt {
-  attemptId     Int           @default(autoincrement()) @id
+  attemptId     Int           @default(autoincrement())
   studyRoom_id  String        @db.Uuid
   day           Int
   quizId        String        @db.Uuid
@@ -161,20 +161,23 @@ model QuizAttempt {
 
   QuestionAttempt QuestionAttempt[]
 
-  @@unique([studyRoom_id, quizId, username, day, attemptId])
+  @@id([studyRoom_id, quizId, username, day, attemptId])
 }
 
 model QuestionAttempt {
   attemptId    Int
+  username     String
   questionId   String      @db.Uuid
+  studyRoom_id String      @db.Uuid
+  quizId       String      @db.Uuid
   day          Int
   question     Question    @relation(fields: [questionId], references: [id])
-  quizAttempt  QuizAttempt @relation(fields: [attemptId], references: [attemptId])
+  quizAttempt  QuizAttempt @relation(fields: [attemptId, studyRoom_id, quizId, username, day], references: [attemptId, studyRoom_id, quizId, username, day])
   correct      Boolean
   answer       String[]
   User         User?       @relation(fields: [username], references: [username])
 
-  @@id([attemptId, questionId])
+  @@id([studyRoom_id, quizId, username, questionId, day, attemptId])
 }
 
 model Question {

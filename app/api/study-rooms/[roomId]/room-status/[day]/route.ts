@@ -28,8 +28,12 @@ export async function GET(req:NextApiRequest,context:any){
         {return NextResponse.json({},{status:400 , statusText:"no room day got"})}
     const scheduled_date = new Date(roomDay.scheduled_date)
     
+    console.log(scheduled_date , time , tomorrow)
+    let isLive = scheduled_date >= time && scheduled_date < tomorrow;
+    let isDead = (scheduled_date < time) && !isLive;
+    
 
-    return NextResponse.json({...roomDay, isLive: scheduled_date >= time && scheduled_date < tomorrow , isDead: scheduled_date > tomorrow},{status : 200});
+    return NextResponse.json({...roomDay, isLive: isLive , isDead:isDead},{status : 200});
 
     
 }

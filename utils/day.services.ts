@@ -78,6 +78,7 @@ export async function createDay(params:CreateDayParams){
           creator_id: true,
         },
       });
+      const dic = {} as any;
     // let newQuizCreator = await prisma.studyRoomMember.findFirst({
 
     //     where :{
@@ -147,8 +148,9 @@ export async function createDay(params:CreateDayParams){
     day: day,
     difficulty: difficulty_type.EASY,
 }
-]        
-    
+]
+for(let i = 0; i < 3; i++)
+    dic[optimalContentCreatorIds[-i]?.creator_id || newDay.studyRoom.ownerId] = (dic[optimalContentCreatorIds[-i]?.creator_id || newDay.studyRoom.ownerId] || 0) + 1;       
 
     await prisma.studyRoomContent.createMany({
         data:studyRoomContentData
@@ -161,6 +163,7 @@ export async function createDay(params:CreateDayParams){
             owner_id : optimalQuizCreatorIds[-1]?.creator_id || newDay.studyRoom.ownerId, 
         }
     })
+
     await prisma.studyRoomQuiz.create({
         data:{
             studyRoom_id: roomId,
@@ -170,6 +173,37 @@ export async function createDay(params:CreateDayParams){
         },
         
     });
+
+    await prisma.studyRoomMember.update({
+        where:{
+            username_studyRoom_id:{
+            username: optimalQuizCreatorIds[-1]?.creator_id || newDay.studyRoom.ownerId,
+            studyRoom_id: roomId
+        }
+        },
+        data:{
+            quizesCreated : {
+                increment : 1
+            }
+        }
+    });
+
+    for(const key in dic){
+        await prisma.studyRoomMember.update({
+            where:{
+                username_studyRoom_id:{
+                username: key,
+                studyRoom_id: roomId
+            }
+            },
+            data:{
+                contentCreated : {
+                    increment : dic[key]
+                }
+            }
+        });
+    }
+
     console.log("creators ",optimalQuizCreatorIds[-1]?.creator_id, optimalContentCreatorIds.slice(-3)?.map(item => item.creator_id));
     return newDay;
 }

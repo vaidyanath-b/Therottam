@@ -37,7 +37,6 @@ export default function CreateDay() {
         <QuizCreate />
       </TabsContent>
       <TabsContent value="settings">
-        <Modules />
       </TabsContent>
     </Tabs>
   )

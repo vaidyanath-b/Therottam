@@ -1,9 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest} from "next/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-export async function GET(req:NextApiRequest,context:any){
+import { getUserData } from "@/app/actions";
+export async function GET(req:NextRequest,context:any){
     const {roomId,day} = context.params;
-
+    const {username} = await getUserData();
     //enable authotrization\
     const time = new Date()
     time.setHours(0,0,0,0)
@@ -19,7 +20,15 @@ export async function GET(req:NextApiRequest,context:any){
             }
         },
         include:{
-            StudyRoomContent:true,
+            StudyRoomContent:{
+                include:{
+                    ContentMark:{
+                        where:{
+                            username: username
+                        }
+                    }
+                }
+            }
         }
     });
     let isLive = false , isDead = false;
@@ -30,3 +39,22 @@ export async function GET(req:NextApiRequest,context:any){
 }
 
 
+export async function POST(req:NextRequest,context:any){
+    const {roomId,day} = context.params;
+    const content= await req.json();
+    console.log("content is ", content);
+    const tasks = await prisma.studyRoomContent.create({
+        data:{
+            studyRoom_id:roomId,
+            day:parseInt(day),
+            title:content.title,
+            link:content.link,
+            resource:content.resource,
+            difficulty:content.difficulty,
+            creator_id:content.creator_id,
+        }
+    });
+    console.log("tasks are ", tasks);
+
+    return NextResponse.json({tasks : tasks} ,{status:200});
+}
