@@ -52,9 +52,7 @@ useEffect(() => {
     getTasks()
 },[params.day])
   return (
-    
-
-    <div className="container mx-auto py-12 px-4 md:px-6 lg:px-8">
+    <div className="container mx-auto py-0 my-0 px-4 md:px-6 lg:px-8">
       <h1 className="text-3xl font-bold mb-8">Day {params.day} tasks</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {
@@ -62,10 +60,17 @@ useEffect(() => {
             
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="p-6">
-                        <Link href="#" className="block mb-4 text-2xl font-bold hover:text-primary" prefetch={false}>{task.title || `${task.difficulty} task`}</Link>
-                        <div className="flex items-center mb-4">
-                            <span className={`bg-${task.difficulty === "EASY" ? "green" : task.difficulty === "MEDIUM" ? "yellow" : "red"}-500 text-white px-2 py-1 rounded-full text-xs font-medium mr-2`}>{task.difficulty}</span>
-                            <span className="text-muted-foreground text-sm">Resources: {task.resource}</span>
+                        <div  className="block mb-3 text-2xl font-bold hover:text-primary" >
+                          {task.title || `${task.difficulty} task`}
+                          
+                          </div>
+                        <div className="flex items-start gap-y-4 mb-2 flex-col">
+                        {<span className="text-muted-foreground text-sm">Link: {task.link?<a>{task.link}</a> : "No link added"}</span>}
+                            <div className="flex justify-between w-[80%]">
+                            <span className={`${task.difficulty === "EASY" ? "bg-green-500" : task.difficulty === "MEDIUM" ? "bg-yellow-500" : "bg-red-500"} text-white px-2 py-1 rounded-full text-xs font-medium mr-2`}>{task.difficulty}</span>
+                            <span className="text-muted-foreground text-sm">{task.creator_id}</span>
+                            </div>
+                            {<span className="text-muted-foreground text-sm">Resources: {task.resource || "No resource added"}</span>}
                         </div>
                         <div className="flex justify-between items-center">
 {                           
@@ -96,9 +101,8 @@ useEffect(() => {
       </div>
       <div>
         <div>
-          <div className="gap-y-3 p-4">
-            <div>Comments</div>
-            <div>Discuss the task with your team.</div>
+          <div className="gap-y-3 py-8 font-bold text-xl">
+            <div>Discuss the tasks with your group.</div>
           </div>
           <div>
             <div className="space-y-4">
@@ -110,7 +114,7 @@ useEffect(() => {
                 <div className="grid gap-1">
                   <div className="font-medium">John Doe</div>
                   <div className="text-muted-foreground">
-                    Looks good! I think we should also consider adding a progress indicator.
+                    The UI looks really bad !!!
                   </div>
                 </div>
               </div>
@@ -122,7 +126,7 @@ useEffect(() => {
                 <div className="grid gap-1">
                   <div className="font-medium">Jane Smith</div>
                   <div className="text-muted-foreground">
-                    Great idea! I'll create a Figma mockup for the progress indicator.
+                    I agree.
                   </div>
                 </div>
               </div>
