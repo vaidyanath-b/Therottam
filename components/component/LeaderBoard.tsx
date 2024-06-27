@@ -11,7 +11,7 @@ interface User {
   username: string;
   contentsCompleted: number;
   quizzesWon: number;
-  quizScore: string;
+  quizScore: number;
   contentCreated: number;
   quizzesCreated: number;
 }
@@ -19,17 +19,55 @@ interface User {
 
 
 
+
+
 export default function Leaderboard({username , roomId} : {username:String,roomId:String}) {
 
 
-    const [usersData, setUsersData] = useState<User[]>([])
+    const [usersData, setUsersData] = useState<User[]>(
+      [
+        {
+          username : "Vaiii",
+          contentsCompleted : 3,
+          quizzesWon : 2,
+          quizScore : 80,
+          contentCreated : 4,
+          quizzesCreated : 5
+        },
+        {
+          username : "Bob",
+          contentsCompleted : 2,
+          quizzesWon : 1,
+          quizScore : 70,
+          contentCreated : 3,
+          quizzesCreated : 4
+        },
+        {
+          username : "Alice",
+          contentsCompleted : 1,
+          quizzesWon : 0,
+          quizScore : 60,
+          contentCreated : 2,
+          quizzesCreated : 3
+        },
+        {
+          username : "Charlie",
+          contentsCompleted : 0,
+          quizzesWon : 0,
+          quizScore : 50,
+          contentCreated : 1,
+          quizzesCreated : 2
+        }
+
+        
+      ])
 
     useEffect(() => {
         async function getUsersData() {
             fetch(`/api/study-rooms/${roomId}/leaderboard`)
                 .then((res) => res.json())
                 .then((data) => {
-                    setUsersData(data)
+                    // setUsersData(data)
                 })
         }
         getUsersData()
