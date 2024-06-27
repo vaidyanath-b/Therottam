@@ -6,9 +6,7 @@ export const PUT = async (req: NextRequest, context:any) => {
         const  data  = await req.json();
         const {questionId} = context.params;
         const question = data.question
-        console.log("question to update",question);
         if (!question) {
-            console.log("No question provided");
             return NextResponse.json({ message: "no question provided" }, { status: 404 });
         }
         const updatedQuestion = await prisma.question.update({
@@ -23,7 +21,6 @@ export const PUT = async (req: NextRequest, context:any) => {
             },
         });
 
-        console.log("Question updated", updatedQuestion.id);
             // Delete old tags
 // Find old tag IDs
 const oldTags = await prisma.questionTopic.findMany({

@@ -7,7 +7,6 @@ export async function DELETE (req: NextRequest, context: any) {
     try {
         const { questionId , quizId } = context.params;
         if (!questionId || !questionId) {
-            console.log("No questionId or quizId provided");
             return NextResponse.json({ message: "no questionId or quizId provided" }, { status: 404 });
         }
         const question = await prisma.quizQuestion.findUnique({

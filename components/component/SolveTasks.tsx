@@ -45,7 +45,6 @@ useEffect(() => {
         fetch(`/api/study-rooms/${roomId}/${params.day}/tasks`)
         .then((res) => res.json())
         .then((data) => {
-            console.log(data)
             setTasks(data.tasks)
 
         })
@@ -77,7 +76,6 @@ useEffect(() => {
                                     method: "POST"
                                 }).then((res) => res.json())
                                 .then((data) => {
-                                    console.log(data)
                                     setTasks((prevTasks) => prevTasks.map((prevTask) => {
                                         if(prevTask.id === task.id){
                                             return {...prevTask , ContentMark: "marked"}

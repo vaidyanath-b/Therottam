@@ -10,7 +10,6 @@ interface Quiz {
 }
 async function getQuizID() {
     const quiz = await prisma.quiz.create({});
-    console.log("Quiz created" , quiz.id)
     return quiz;
 }
 

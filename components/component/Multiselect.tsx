@@ -46,7 +46,6 @@ try{
       setAllTags(data)
 }
 catch(e){
-  console.log(e)
 }    
 
 }

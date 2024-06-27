@@ -62,7 +62,6 @@ export default function StudyRoom() {
 
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
         setSelectedDay(data.day)
       })
     }
@@ -82,14 +81,12 @@ export default function StudyRoom() {
       fetch(`/api/study-rooms/${roomId}/room-status/${selectedDay}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
         setQuizes(data.StudyRoomQuiz)
         setDayInfo({isLive : data.isLive,isDead :data.isDead})
       })
     }
     getDayItems()
   }, [selectedDay])
-  console.log("roomId is " ,roomId)
   return (
     dayInfo && selectedDay!=-1 && <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
 
@@ -122,7 +119,7 @@ export default function StudyRoom() {
             </Popup>
             <Button onClick={()=>setLeaderboardOpen(true)}
 
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+              className="bg-transparent flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
             <ShieldHalf className="h-4 w-4"/>
               Leaderboard

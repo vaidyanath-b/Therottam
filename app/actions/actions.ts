@@ -34,7 +34,6 @@ export async function login(email:string,password:string) {
     }
   })
   if(!uname && data.user?.email){
-    console.log("Creating user" , data.user?.email , uname)
     await prisma.user.create({
       data: {
         email: data.user?.email,

@@ -42,7 +42,6 @@ export async function GET(req:NextRequest,context:any){
 export async function POST(req:NextRequest,context:any){
     const {roomId,day} = context.params;
     const content= await req.json();
-    console.log("content is ", content);
     const tasks = await prisma.studyRoomContent.create({
         data:{
             studyRoom_id:roomId,
@@ -54,7 +53,6 @@ export async function POST(req:NextRequest,context:any){
             creator_id:content.creator_id,
         }
     });
-    console.log("tasks are ", tasks);
 
     return NextResponse.json({tasks : tasks} ,{status:200});
 }

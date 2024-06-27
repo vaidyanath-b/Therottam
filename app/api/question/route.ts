@@ -7,9 +7,7 @@ export const POST = async (req: NextRequest) => {
     try {
         const  data  = await req.json();
         const question = data.question
-        console.log(question);
         if (!question) {
-            console.log("No question provided");
             return NextResponse.json({ message: "no question provided" }, { status: 404 });
         }
         const newQuestion = await prisma.question.create({
@@ -21,7 +19,6 @@ export const POST = async (req: NextRequest) => {
             },
         });
 
-        console.log("Question created", newQuestion.id);
         if (question.quizId) {
             const quizQuestion = await prisma.quizQuestion.create({
                 data: {
@@ -30,7 +27,6 @@ export const POST = async (req: NextRequest) => {
                     questionId: newQuestion.id
                 }
             });
-            console.log("Quiz Question created", quizQuestion.quizId, quizQuestion.questionId);
         }
 
         if (question.tags) {

@@ -121,25 +121,20 @@ export const QuizCreate = () => {
         }
 
       const res = await axios.put(`/api/question/${updatedQuestion.id}`, {question:postQuestion})
-      console.log("updated" , res.data)
       // change needed update question
       // const res = await axios.put(`/api/question/${quizId}`, questions[questionIndex]) change needed update question
-      // console.log(res.data)
     }
 
     useEffect(() => {
       setLoading(true)
       async function fetchTopics() {
         const res = await axios.get(`/api/topics`) // change needed handle case for mulitple topicdomains
-        console.log(res.data)
         setTopics(res.data)
 
     }
 
       async function fetchQuiz() {
         const res = await axios.get(`/api/quiz/${quizId}`)
-        console.log(res.data)
-        console.log("console ",res.data)
 
         setQuestions(res.data.quiz.questions)
         //setTags(res.data.quiz.topics) // need change for quiz tags

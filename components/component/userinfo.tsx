@@ -47,7 +47,6 @@ import { LogOut } from "lucide-react";
             ) : (
             // Show this message when there is no email
             <DropdownMenuItem className="text-gray-900 cursor-pointer" onSelect={() => {
-                console.log("redirecting ")
                 router.push('/login');
             }}>
                 <p className="w-full p-2 text-sm">Sign in to view your profile details</p>

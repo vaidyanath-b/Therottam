@@ -49,7 +49,6 @@ export default function AttemptQuiz() {
       roomId,
       day
     });
-    console.log(res.data);
     setIsSubmitted(true);
     // Assuming res.data contains the feedback similar to the provided structure
     setFeedback(res.data.QuestionAttempt); // Store the entire feedback
@@ -62,7 +61,6 @@ export default function AttemptQuiz() {
         .then((res) => res.json())
         .then((data) => {
           setQuestions(data.quiz.questions)
-          console.log(data.quiz.questions[0])
         }) 
     }
     getQuestions()
@@ -104,9 +102,7 @@ export default function AttemptQuiz() {
   <div className="space-y-2">
   {questions[currentQuestion].options.map((answer: any, index: any) => {
       answer = answer.text;
-      console.log("feedback" , feedback);
       const isCorrect = feedback?.find((f: any) => f.questionId === questions[currentQuestion].id && f.question.correctOption.includes(answer));
-      console.log("iscorrect" , answer ,isCorrect);
       const isSelected = selectedAnswers[questions[currentQuestion].id]?.includes(answer) || false;
 
       return (

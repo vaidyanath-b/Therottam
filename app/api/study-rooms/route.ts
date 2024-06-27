@@ -47,7 +47,6 @@ catch(error){
 
 export async function POST(req: NextRequest) {
   const { user, username } = await getUserData();
-  console.log("user is ", user , "username is ", username);
   try {
     if (!user || !username) {
       return NextResponse.json({ message: "Authentication required" }, { status: 401 });

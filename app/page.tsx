@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/component/sidebar";
 import StudyRoomList from "@/components/component/studygrouplist";
 export default function Home() {
+  
   return(
     <div>
     <Sidebar/>

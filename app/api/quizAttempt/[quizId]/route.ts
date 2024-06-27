@@ -10,10 +10,8 @@ export async function GET(req: NextRequest , context:any) {
 try{
     const {quizId} = context.params;
     if (!quizId) {
-        console.log("No quizId provided");
         return NextResponse.json({message:"no quizId provided" },{ status:404})
     }
-    console.log(quizId);
     const quiz = await prisma.quiz.findUnique({
         where: {
             id: quizId
@@ -68,7 +66,6 @@ try{
             topic.topic
         })
     }
-    console.log(quizSend);
     return NextResponse.json({quiz:quizSend },{status:200});
 }
 catch (error) {
@@ -104,10 +101,8 @@ try{
             day:parseInt(day),
         },
     });
-    console.log(quiz);
 
     let score =0;
-    console.log("attempts" , attempts)
     for(const attemptKey in attempts){
         const attempt:string[] = attempts[attemptKey];
         const isCorrect = attempt.length === questions[attemptKey].correctOption.length &&
@@ -146,7 +141,6 @@ try{
             }
         }
     })
-    console.log(JSON.stringify(res));
     const result = {...res , QuestionAttempt :res.QuestionAttempt.map((questionAttempt) => {
         return {
             ...questionAttempt,

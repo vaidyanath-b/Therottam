@@ -25,7 +25,6 @@ export async function GET(req: NextRequest ,context:any) {
         return NextResponse.json(leaderboard,{status:200});
     }
     catch(err){
-        console.log(err);
         return NextResponse.json({message:"Error fetching leaderboard"},{status:500});
     }
 }

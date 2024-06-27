@@ -204,6 +204,5 @@ for(let i = 0; i < 3; i++)
         });
     }
 
-    console.log("creators ",optimalQuizCreatorIds[-1]?.creator_id, optimalContentCreatorIds.slice(-3)?.map(item => item.creator_id));
     return newDay;
 }

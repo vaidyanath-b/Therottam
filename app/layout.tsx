@@ -16,6 +16,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
+    document.title = "Therottam"
  
   return (
     <html lang="en">

@@ -85,14 +85,11 @@ export default function Modules({ roomId, day }: { roomId: string; day: number }
       difficulty: section.difficulty,
       creator_id : userName
     })
-    console.log(res)
   }
   useEffect(() => {
-    console.log("fetching")
     async function fetchContents() {
       const res = await fetch(`/api/study-rooms/${roomId}/${day}/tasks`)
       const data = await res.json()
-      console.log(data)
       setContents(data.tasks)
       setDayInfo(data.dayInfo)
     }
