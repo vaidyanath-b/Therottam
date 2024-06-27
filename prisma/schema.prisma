@@ -167,7 +167,6 @@ model QuizAttempt {
 model QuestionAttempt {
   attemptId    Int
   questionId   String      @db.Uuid
-  day          Int
   question     Question    @relation(fields: [questionId], references: [id])
   quizAttempt  QuizAttempt @relation(fields: [attemptId], references: [attemptId])
   correct      Boolean

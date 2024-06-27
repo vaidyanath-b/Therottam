@@ -119,13 +119,9 @@ try{
         await prisma.questionAttempt.create({
             data:{
                 attemptId:quiz.attemptId,
-                username:String(username),
-                quizId:quizId,
                 questionId: attemptKey,
-                studyRoom_id:roomId,
                 answer: attempt,
                 correct: isCorrect,
-                day:parseInt(day),
             }
         })
     }
