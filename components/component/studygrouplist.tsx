@@ -1,8 +1,3 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/OaJTjNQlBSE
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -10,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { StudyRoomData , StudyRoomListData } from "@/types"
+import { StudyRoomListData } from "@/types"
 import { getUserData } from "@/app/actions"
+import { Loader2 } from "lucide-react"
 import axios from "axios"
 
 export default function StudyRoomList() {
@@ -21,6 +17,7 @@ export default function StudyRoomList() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [roomCode, setRoomCode] = useState("")
   const [groupName, setGroupName] = useState("")
+  const [isLoaded, setIsLoaded] = useState(false)
   const handleJoinRoom = async () => {
     const joinedRoom = await axios.post('/api/study-rooms/join', {
       code: roomCode
@@ -69,6 +66,7 @@ try{
       const data = response.data as StudyRoomListData[]
       console
       setGroups(data) 
+      setIsLoaded(true)
 }
 catch(error){
   console.error("Error fetching study rooms:", error);
@@ -78,6 +76,10 @@ catch(error){
     fetchGroups()
 },[])
   return (
+    !isLoaded? <div className="flex justify-center items-center h-screen">
+      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" /> 
+    </div>:
+  
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Study Groups</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">

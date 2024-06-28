@@ -14,6 +14,7 @@ import { useState,useEffect } from "react"
 import { useParams } from "next/navigation"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckDouble } from '@fortawesome/free-solid-svg-icons'
+import { Loader2 } from "lucide-react"
 
 interface Content {
     activity: null | string,
@@ -40,18 +41,24 @@ export default function SolvePage(params:Params) {
 const {roomId} = useParams();
 
 const [tasks , setTasks] = useState<Content[]>([])
+const [isLoaded , setIsLoaded] = useState(false)
 useEffect(() => {
+
     async function getTasks(){
+      setIsLoaded(false)
         fetch(`/api/study-rooms/${roomId}/${params.day}/tasks`)
         .then((res) => res.json())
         .then((data) => {
             setTasks(data.tasks)
-
+          setIsLoaded(true)
         })
     }
     getTasks()
 },[params.day])
   return (
+    !isLoaded ?   ( <div className="flex justify-center items-center h-screen">
+      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" /> 
+    </div>):
     <div className="container mx-auto py-0 my-0 px-4 md:px-6 lg:px-8">
       <h1 className="text-3xl font-bold mb-8">Day {params.day} tasks</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

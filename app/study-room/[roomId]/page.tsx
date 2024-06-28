@@ -5,6 +5,7 @@ import {
   CircleUser,
   Home,
   LineChart,
+  Loader2,
   Menu,
   Package,
   Package2,
@@ -58,6 +59,7 @@ export default function StudyRoom() {
   const [dayInfo , setDayInfo] = React.useState<any>()
   const [leaderboardOpen, setLeaderboardOpen] = React.useState(false)
   const [isNavVisible, setIsNavVisible] = React.useState(false);
+  const [isLoaded, setIsLoaded] = React.useState(false);
 
   // Function to toggle navigation visibility
   const toggleNavVisibility = () => {
@@ -90,10 +92,15 @@ export default function StudyRoom() {
         setQuizes(data.StudyRoomQuiz)
         setDayInfo({isLive : data.isLive,isDead :data.isDead})
       })
+      setIsLoaded(true)
     }
     getDayItems()
   }, [selectedDay])
   return (
+    !isLoaded?   ( <div className="flex justify-center items-center h-screen">
+      <Loader2 className="w-16 h-16 text-blue-500 animate-spin" /> 
+    </div>)// or display loading spinner
+  :
     dayInfo && selectedDay!=-1 && <div className="md:grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
 <div className="">
       <div className="flex flex-col gap-2">
