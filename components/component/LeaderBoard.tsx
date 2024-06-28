@@ -74,7 +74,6 @@ export default function Leaderboard({username , roomId} : {username:String,roomI
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="w-8 h-8">
-                      <AvatarImage src="/placeholder-user.jpg" />
                       <AvatarFallback>{user.username[0].toUpperCase() + user.username[1].toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="font-medium">{user.username}</div>

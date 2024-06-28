@@ -163,6 +163,7 @@ export default function StudyRoom() {
           <SelectLabel>Select a day</SelectLabel>
           {days.map((day) => (
             <SelectItem
+              key={day}
               value={String(day)}
             >
               {day}
@@ -180,7 +181,7 @@ export default function StudyRoom() {
       </TabsList>
       <TabsContent value="quiz" className="flex flex-col pl-30 px-10 py-3 gap-y-7">
           {quizes && quizes.map((quiz:any,index) => (
-                 <div className="container mx-auto py-6 px-4 md:px-6 lg:px-8">
+                 <div key={index} className="container mx-auto py-6 px-4 md:px-6 lg:px-8">
                 <h1 className="text-3xl font-bold mb-8">Day {selectedDay} Quizes</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">

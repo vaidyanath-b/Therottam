@@ -58,7 +58,7 @@ useEffect(() => {
         {
             tasks.map((task) => (
             
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div key={task.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="p-6">
                         <div  className="block mb-3 text-2xl font-bold hover:text-primary" >
                           {task.title || `${task.difficulty} task`}
@@ -108,7 +108,6 @@ useEffect(() => {
             <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <Avatar>
-                  <AvatarImage src="/placeholder-user.jpg" />
                   <AvatarFallback>AC</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
@@ -120,7 +119,6 @@ useEffect(() => {
               </div>
               <div className="flex items-start gap-4">
                 <Avatar>
-                  <AvatarImage src="/placeholder-user.jpg" />
                   <AvatarFallback>AC</AvatarFallback>
                 </Avatar>
                 <div className="grid gap-1">
