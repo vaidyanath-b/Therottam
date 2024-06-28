@@ -105,11 +105,11 @@ export default function Modules({ roomId, day }: { roomId: string; day: number }
 },[])
   return (
     
-      <main className="w-full max-w-4xl ml-20 py-12 md:py-20 lg:py-28 px-4 md:px-6">
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <main className="w-full max-w-4xl sm:ml-20 py-12 md:py-20 lg:py-28 px-4 md:px-6">
+      <div className="md:grid gap-8 md:grid-cols-2 sm:flex sm:flex-col gap-y-4">
       {contents.map((content:Content, index) => (
-        <div key={content.id} className={`space-y-6 ${content.creator_id == userName ? "" : "hidden"}`}>
-          <div className="space-y-2">
+        <div key={content.id} className={`space-y-6 ${content.creator_id == userName ? "" : "hidden"} py-4`}>
+          <div className="space-y-2 gap-y-2">
             <div className={`inline-block rounded-lg ${content.difficulty === "EASY" ? "bg-green-100" : content.difficulty === "MEDIUM" ? "bg-yellow-100" : "bg-red-100"}
                px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200 `}>
               {content.difficulty}
@@ -121,15 +121,15 @@ export default function Modules({ roomId, day }: { roomId: string; day: number }
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor={`title-${index}`}>Title</Label>
-              <Input type="text" id="title" placeholder="Enter a title" value={content.title || " "} onChange={(e) => handleContentChange(content.id, e)} />
+              <Input type="text" id="title" placeholder="Enter a title" value={content.title || ""} onChange={(e) => handleContentChange(content.id, e)} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor={`link-${index}`}>Link</Label>
-              <Input type="text" id="link"  placeholder="Enter a link" value={content.link || " "} onChange={(e) => handleContentChange(content.id, e)} />
+              <Input type="text" id="link"  placeholder="Enter a link" value={content.link || ""} onChange={(e) => handleContentChange(content.id, e)} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor={`resources-${index}`}>Resources</Label>
-              <Textarea id="resources"  placeholder="Enter resources" rows={3} value={content.resource || " "} onChange={(e) => handleContentChange(content.id, e)} />
+              <Textarea id="resources"  placeholder="Enter resources" rows={3} value={content.resource || ""} onChange={(e) => handleContentChange(content.id, e)} />
             </div>
           </div>
         </div>
@@ -176,7 +176,6 @@ export default function Modules({ roomId, day }: { roomId: string; day: number }
     <option value="EASY">Easy</option>
     <option value="MEDIUM">Medium</option>
     <option value="HARD">Hard</option>
-    <option value="CUSTOM">Custom</option>
   </select>
 </div>
                 <Label htmlFor={`custom-resources-${index}`}>Resources</Label>

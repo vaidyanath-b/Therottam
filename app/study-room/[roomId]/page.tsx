@@ -57,6 +57,12 @@ export default function StudyRoom() {
   const [userName , setUserName] = React.useState<String>("")
   const [dayInfo , setDayInfo] = React.useState<any>()
   const [leaderboardOpen, setLeaderboardOpen] = React.useState(false)
+  const [isNavVisible, setIsNavVisible] = React.useState(false);
+
+  // Function to toggle navigation visibility
+  const toggleNavVisibility = () => {
+    setIsNavVisible(!isNavVisible);
+  };
   useEffect(() => {
     async function getRoomDay(){fetch(`/api/study-rooms/${roomId}/room-status`)
 
@@ -88,24 +94,21 @@ export default function StudyRoom() {
     getDayItems()
   }, [selectedDay])
   return (
-    dayInfo && selectedDay!=-1 && <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-
-    
-
-
-    <div className="hidden border-r bg-muted/40 md:block">
-      <div className="flex h-full max-h-screen flex-col gap-2">
+    dayInfo && selectedDay!=-1 && <div className="md:grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+<div className="">
+      <div className="flex flex-col gap-2">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <Package2 className="h-6 w-6" />
-            <span className="">{studyRoomName}</span>
+            <span>{studyRoomName}</span>
           </Link>
-          <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-            <Bell className="h-4 w-4" />
+          <Button variant="outline" size="icon" className="ml-auto h-8 w-8" onClick={toggleNavVisibility}>
+            <Bell className="h-4 w-4 bg-white " color="black" />
             <span className="sr-only">Toggle notifications</span>
           </Button>
         </div>
-        <div className="flex-1">
+        {/* Conditional rendering based on isNavVisible state */}
+        <div className={`flex-1 ${isNavVisible ? 'block' : 'hidden'} md:block`}>
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
             <Link
               href="#"
@@ -150,8 +153,9 @@ export default function StudyRoom() {
         <Label className="text-lg font-semibold">Day </Label>
       <Select value={String(selectedDay)}
         onValueChange={(value) => setSelectedDay(Number(value))}
+        
       >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-[180px] text-white bg-black">
         <SelectValue placeholder="Select a Day" />
       </SelectTrigger>
       <SelectContent >

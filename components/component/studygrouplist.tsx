@@ -93,10 +93,10 @@ catch(error){
 </div>          ))}
       </div>
       <div className="flex justify-between items-center mt-8">
-        <Button variant="outline" size="lg" onClick={() => setShowModal(true)}>
+        <Button variant="outline" size="lg" className="bg-black text-white" onClick={() => setShowModal(true)}>
           Join a Room
         </Button>
-        <Button variant="outline" size="lg" onClick={() => setShowCreateModal(true)}>
+        <Button variant="outline" size="lg" className="bg-black text-white" onClick={() => setShowCreateModal(true)}>
           Create a Room
         </Button>
       </div>
